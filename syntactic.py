@@ -1,4 +1,4 @@
-# Projeto Compilador - Analisador Léxico
+# Projeto Compilador - Analisador Sintatico
 # 	Agostinho Sanches de Araujo - 16507915
 # 	Pedro Andrade Caccavaro - 16124679
 
@@ -215,15 +215,24 @@ def analyzeProcedureAssignment():
 
 
 def analyzeAssignment():
-	# global token
-	print("Analyzing Assignment")
-	print("TODO")
-	# if token["Symbol"] == "satribuicao":
+	global token
 
+	print("Analyzing Assignment")
+	token = lexical.getToken()
+	print(token)
+	if token["Symbol"] == "sidentificador" or token["Symbol"] == "snumero":
+		token = lexical.getToken()
+		print(token)
+		analyzeExpression()
+	else:
+		error("a Identifier or Number",token["Line"])
 
 def analyzeProcedureCall():
+	global token
+
 	print("Analyzing proc call")
-	print("TODO")
+	token = lexical.getToken()
+	print(token)
 
 
 def analyzeRead():
@@ -331,6 +340,7 @@ def analyzeExpression():
 
 def analyzeSimpleExpression():
 	global token
+
 	print("Analyzing simple expression")
 	if token["Symbol"] == "smais" or token["Symbol"] == "smenos":
 		token = lexical.getToken()
@@ -385,8 +395,11 @@ def analyzeFactor():
 
 
 def analyzeFunctionCall():
-	print("Analyzing func call")
-	print("TODO")
+	global token
+
+	print("Analyzing function call")
+	token = lexical.getToken()
+	print(token)
 
 
 

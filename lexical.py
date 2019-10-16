@@ -1,4 +1,4 @@
-# Projeto Compilador - Analisador Léxico
+# Projeto Compilador - Analisador Lexico
 # 	Agostinho Sanches de Araujo - 16507915
 # 	Pedro Andrade Caccavaro - 16124679
 
@@ -344,5 +344,5 @@ def error(wrongChar):
 	global lines
 	for line in lines:
 		if wrongChar in line:
-			print("Error in line " + str(lines.index(line) + 1) + ": Unexpected character " + wrongChar)
+			print("Found a error: Unexpected character " + wrongChar + " in line " + str(lines.index(line) + 1) )
 	exit()
