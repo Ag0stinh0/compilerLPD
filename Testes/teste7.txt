@@ -1,0 +1,9 @@
+Teste
+                                                        inicio      3; programa: inteiro
+                                    se x > < ou = a y entao
+		faca x
+                                     :=
+                                          y <> z
+                                                        ;
+fim.
+inicio
