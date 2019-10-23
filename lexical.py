@@ -280,6 +280,8 @@ def getToken():
 	while index < len(characters):
 		if characters[index] is "{":
 			resolveComments()
+			if(index >= len(characters)):
+				return "Error"
 			index += 1
 
 		elif characters[index].isnumeric():

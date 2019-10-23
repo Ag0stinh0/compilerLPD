@@ -15,31 +15,33 @@ def main():
     # label = 1
 
     token = lexical.getToken()
-    if token["Symbol"] == "sprograma":
-        token = lexical.getToken()
-
-        if token["Symbol"] == "sidentificador":
-            # insert in symboltable
+    if token != "Error":
+        if token["Symbol"] == "sprograma":
             token = lexical.getToken()
-
-            if token["Symbol"] == "sponto_virgula":
-                syntactic.analyzeBlock()
-
-                if token["Symbol"] == "sponto":
+            if token["Symbol"] == "sidentificador":
+                # insert in symboltable
+                token = lexical.getToken()
+                if token["Symbol"] == "sponto_virgula":
+                    syntactic.analyzeBlock()
                     token = lexical.getToken()
                     if token == "End":
                         print("SUCESS!")
+		    #if token["Symbol"] == "sponto":
+			# token = lexical.getToken()
+			#if token == "End":
+			    #   print("SUCESS!")
+			#else:
+			    #   error()
                     else:
-                        error()
+                        error("the end of file", token["Line"])
                 else:
-                    error()
+                    error("an ;", token["Line"])
             else:
-                error()
+                error("an Identifier", token["Line"])
         else:
-            error()
+            error("programa", token["Line"])
     else:
-        error()
-
+        print("Found an error: Expected } to finish the comment!")
 
 
 def argsParser():
@@ -54,9 +56,10 @@ def argsParser():
         return args.path
 
 
-def error():
-    print("Found a error Compiler!")
+def error(string,line):
+    print("Found an error: Expected " + string + " in line " + str(line))
     exit()
+
 
 
 

@@ -176,10 +176,22 @@ def analyzeCommand():
 				print(token)
 				if token["Symbol"] != "sfim":
 					analyzeSimpleCommand()
+				else:
+					token = lexical.getToken()
+					print(token)
+					break
 			else:
 				error("an ;", token["Line"])
-			token = lexical.getToken()
-			print(token)
+			if token["Symbol"] == "sfim":
+				token = lexical.getToken()
+				print(token)
+				break
+			if token["Symbol"] != "sponto_virgula" :
+				token = lexical.getToken()
+				print(token)
+		if token["Symbol"] != "sponto" and token["Symbol"] != "sponto_virgula":
+			error("'fim'", token["Line"])
+
 	else:
 		error("'inicio'", token["Line"])
 
