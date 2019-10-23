@@ -15,15 +15,19 @@ def main():
     # label = 1
 
     token = lexical.getToken()
+    print(token)
     if token != "Error":
         if token["Symbol"] == "sprograma":
             token = lexical.getToken()
+            print(token)
             if token["Symbol"] == "sidentificador":
                 # insert in symboltable
                 token = lexical.getToken()
+                print(token)
                 if token["Symbol"] == "sponto_virgula":
                     syntactic.analyzeBlock()
                     token = lexical.getToken()
+                    print(token)
                     if token == "End":
                         print("SUCESS!")
 		    #if token["Symbol"] == "sponto":

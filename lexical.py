@@ -3,17 +3,44 @@
 # 	Pedro Andrade Caccavaro - 16124679
 
 token = {}
-indexLine = 1
+indexLine = 0
 characters = []
 arithmetics = ["+", "-", "*"]
-operations = [">", "<", "="]
+operations = [">", "<", "=", "!"]
 punctuation = [";", ",", "(", ")", "."]
-errors = ["/", "%", "!", "@", "#","$"]
+errors = ["/", "%", "@", "#","$"]
 lines = []
 index = 0	# Stores the index of characters
 
 def getLine(word):
-	return 0
+	global indexLine
+	global lines
+
+	for i in range(indexLine,len(lines)):
+		if "{" in lines[i] or "}" in lines[i]:
+			if i >= indexLine:
+				indexLine += 1
+		elif lines[i] == "\n":
+			if i >= indexLine:
+				indexLine += 1
+		elif word in lines[i]:
+			if word == ";":
+				indexLine += 1
+				return indexLine-1
+			elif len(lines[i].split()) == 1 and ";" not in lines[i]:
+				indexLine += 1
+				return indexLine-1
+			elif word == "entao":
+				indexLine += 1
+				return indexLine-1
+			elif "fim" in lines[i + 1] and ";" not in lines[i]:
+				indexLine += 1
+				return indexLine-1
+			elif word == ".":
+				return indexLine
+			return indexLine
+		return indexLine
+
 
 
 # Define the symbol or the identifier
@@ -69,7 +96,7 @@ def defineSymbol(id):
 def resolveComments():
 	global index
 	while characters[index] is not "}":
-		index += 1
+		index +=1
 		if index >= len(characters):
 			break
 
