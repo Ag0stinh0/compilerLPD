@@ -5,6 +5,7 @@
 import lexical
 
 token = {}
+label = 1
 
 def analyzeBlock():
 	global token
@@ -21,7 +22,6 @@ def analyzeBlock():
 
 def analyzeVarDeclaration():
 	global token
-
 
 	if token["Symbol"] == "svar":
 		token = lexical.getToken()
@@ -43,20 +43,20 @@ def analyzeVar():
 
 	while True:
 		if token["Symbol"] == "sidentificador":
-			#search table for duplicity
-			#if not Found
-			#insert table
-			token = lexical.getToken()
-			print(token)
-			if token["Symbol"] == "svirgula" or token["Symbol"] == "sdoispontos":
-				if token["Symbol"] == "svirgula":
-					token = lexical.getToken()
-					print(token)
-					if token["Symbol"] == "sdoispontos":
-						error("an Identifier", token["Line"])
+			if not symboltable.searchVarDuplicity(token["Lexeme"]):
+				symboltable.insert(token["Lexeme"],"variavel")
+				token = lexical.getToken()
+				print(token)
+				if token["Symbol"] == "svirgula" or token["Symbol"] == "sdoispontos":
+					if token["Symbol"] == "svirgula":
+						token = lexical.getToken()
+						print(token)
+						if token["Symbol"] == "sdoispontos":
+							error("an Identifier", token["Line"])
+				else:
+					error("an : or , ", token["Line"])
 			else:
-				error("an : or , ", token["Line"])
-			#else error
+				print("FOUND duplicity")
 		else:
 			error("an Identifier", token["Line"])
 
@@ -70,19 +70,17 @@ def analyzeVar():
 def analyzeType():
 	global token
 
-
 	if token["Symbol"] != "sinteiro" and token["Symbol"] != "sbooleano":
 		error("'inteiro' or 'booleano'",token["Line"])
 	else:
-		#insere na tabela
-		token = lexical.getToken()
-		print(token)
+		symboltable.insertType(token["Lexeme"])
+	token = lexical.getToken()
+	print(token)
 
 
 def analyzeSubRoutine():
 	global token
 	#auxrot, flag inteiro
-
 
 	flag = 0
 	if token["Symbol"] == "sprocedimento" or token["Symbol"] == "sfuncao":
@@ -106,59 +104,56 @@ def analyzeSubRoutine():
 def analyzeProcedureDeclaration():
 	global token
 
-
 	token = lexical.getToken()
-	# level
+	level = "L"
 	if token["Symbol"] == "sidentificador":
-		# searcj dec proc table
-		# if not
-		#insert table
-		# generate
-		#rot += 1
-		token = lexical.getToken()
-		print(token)
-		if token["Symbol"] == "sponto_virgula":
-			analyzeBlock()
+		if not symboltable.searchProcDeclaration(token["Lexeme"]):
+			symboltable.insert(token["Lexeme"],"procedimento",level,label)
+			token = lexical.getToken()
+			print(token)
+			if token["Symbol"] == "sponto_virgula":
+				analyzeBlock()
+			else:
+				error("an ;", token["Line"])
 		else:
-			error("an ;", token["Line"])
-		#else error
+			print("Proc Declared")
 	else:
 		error("a Identifier", token["Line"])
-	# back level
+	symboltable.restoreLevel()
 
 
 def analyzeFunctionDeclaration():
 	global token
 
-
 	token = lexical.getToken()
 	print(token)
-	# level
+	level = "L"
 	if token["Symbol"] == "sidentificador":
-		# searcj dec func table
-		# if not
-		#insert table
-		token = lexical.getToken()
-		print(token)
-		if token["Symbol"] == "sdoispontos":
+		if not symboltable.searchFuncDeclaration(token["Lexeme"]):
+			symboltable.insert(token["Lexeme"],None,level,label)
 			token = lexical.getToken()
 			print(token)
-			if token["Symbol"] == "sinteiro" or token["Symbol"] == "sbooleano":
-				# if sinteiro type in table is func inteiro
-				# else func bool
+			if token["Symbol"] == "sdoispontos":
 				token = lexical.getToken()
 				print(token)
-				if token["Symbol"] == "sponto_virgula":
-					analyzeBlock()
+				if token["Symbol"] == "sinteiro" or token["Symbol"] == "sbooleano":
+					if token["Symbol"] == "sinteiro":
+						symboltable.defineFuncType("inteiro")
+					else:
+						symboltable.defineFuncType("booleano")
+					token = lexical.getToken()
+					print(token)
+					if token["Symbol"] == "sponto_virgula":
+						analyzeBlock()
+				else:
+					error("'inteiro' or 'booleano'", token["Line"])
 			else:
-				error("'inteiro' or 'booleano'", token["Line"])
+				error("an :", token["Line"])
 		else:
-			error("an :", token["Line"])
-		#else error
+			print("Func declared")
 	else:
 		error("a Identifier", token["Line"])
-	# back level
-
+	symboltable.restoreLevel()
 
 
 def analyzeCommand():
@@ -216,7 +211,6 @@ def analyzeSimpleCommand():
 def analyzeProcedureAssignment():
 	global token
 
-
 	token = lexical.getToken()
 	print(token)
 	if token["Symbol"] == "satribuicao":
@@ -228,7 +222,6 @@ def analyzeProcedureAssignment():
 def analyzeAssignment():
 	global token
 
-
 	token = lexical.getToken()
 	print(token)
 	if token["Symbol"] == "sidentificador" or token["Symbol"] == "snumero":
@@ -237,6 +230,7 @@ def analyzeAssignment():
 		analyzeExpression()
 	else:
 		error("a Identifier or Number",token["Line"])
+
 
 def analyzeProcedureCall():
 	global token
@@ -249,23 +243,22 @@ def analyzeProcedureCall():
 def analyzeRead():
 	global token
 
-
 	token = lexical.getToken()
 	print(token)
 	if token["Symbol"] == "sabre_parenteses":
 		token = lexical.getToken()
 		print(token)
 		if token["Symbol"] == "sidentificador":
-			# search declaration in the table
-			#search all table
-			token = lexical.getToken()
-			print(token)
-			if token["Symbol"] == "sfecha_parenteses":
+			if symboltable.searchVarDeclaration(token["Lexeme"]):
 				token = lexical.getToken()
 				print(token)
+				if token["Symbol"] == "sfecha_parenteses":
+					token = lexical.getToken()
+					print(token)
+				else:
+					error("an )", token["Line"])
 			else:
-				error("an )", token["Line"])
-			# error
+				print("Var no declared")
 		else:
 			error("a Identifier", token["Line"])
 	else:
@@ -282,15 +275,16 @@ def analyzeWrite():
 		token = lexical.getToken()
 		print(token)
 		if token["Symbol"] == "sidentificador":
-			# search declaration var func
-			token = lexical.getToken()
-			print(token)
-			if token["Symbol"] == "sfecha_parenteses":
+			if symboltable.searchVarFuncDeclaration(token["Lexeme"]):
 				token = lexical.getToken()
 				print(token)
+				if token["Symbol"] == "sfecha_parenteses":
+					token = lexical.getToken()
+					print(token)
+				else:
+					error("an )", token["Line"])
 			else:
-				error("an )", token["Line"])
-			# error
+				print("Var Func not declared")
 		else:
 			error("a Identifier", token["Line"])
 	else:
@@ -390,11 +384,13 @@ def analyzeFactor():
 	global token
 
 	if token["Symbol"] == "sidentificador":
-		# search table
-		# if func inteiro or func bool
-		analyzeFunctionCall()
-		#else token
-		#else error
+		if symboltable.search(token["Lexeme"],level,ind):
+			if symboltable.get(ind)["Type"] == "booleano" or if symboltable.get(ind)["Type"] == "inteiro":
+				analyzeFunctionCall()
+			else:
+				token = lexical.getToken()
+		else:
+			print("Not in table")
 	elif token["Symbol"] == "snumero":
 		token = lexical.getToken()
 		print(token)
