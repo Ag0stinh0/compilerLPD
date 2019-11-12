@@ -3,6 +3,8 @@
 # 	Pedro Andrade Caccavaro - 16124679
 
 import lexical
+import codegeneration
+
 
 token = {}
 label = 1
@@ -13,9 +15,7 @@ def analyzeBlock():
 	token = lexical.getToken()
 	print(token)
 	analyzeVarDeclaration()
-
 	analyzeSubRoutine()
-
 	analyzeCommand()
 
 
@@ -80,12 +80,14 @@ def analyzeType():
 
 def analyzeSubRoutine():
 	global token
-	#auxrot, flag inteiro
+	global label
 
 	flag = 0
 	if token["Symbol"] == "sprocedimento" or token["Symbol"] == "sfuncao":
-		# labels
-		print("TODO")
+		auxLabel = label
+		codegeneration.generate(None,"JMP",label,None)
+		label += 1
+		flag = 1
 	while token["Symbol"] == "sprocedimento" or token["Symbol"] == "sfuncao":
 		if token["Symbol"] == "sprocedimento":
 			analyzeProcedureDeclaration()
@@ -97,8 +99,7 @@ def analyzeSubRoutine():
 		else:
 			error("an ;", token["Line"])
 	if flag == 1:
-		# generate
-		print("TODO")
+		codegeneration.generate(auxLabel,"NULL",None,None)
 
 
 def analyzeProcedureDeclaration():
@@ -109,6 +110,8 @@ def analyzeProcedureDeclaration():
 	if token["Symbol"] == "sidentificador":
 		if not symboltable.searchProcDeclaration(token["Lexeme"]):
 			symboltable.insert(token["Lexeme"],"procedimento",level,label)
+			codegeneration.generate(label,"NULL",None,None)
+			label += 1
 			token = lexical.getToken()
 			print(token)
 			if token["Symbol"] == "sponto_virgula":
@@ -293,10 +296,11 @@ def analyzeWrite():
 
 def analyzeWhile():
 	global token
-	# auxrot1, auxrot2
+	global label
 
-	#auxrot1 = rotulo
-	# generate label
+	auxLabel1 = label
+	codegeneration.generate(label,"NULL",None,None)
+	label += 1
 	token = lexical.getToken()
 	print(token)
 	if token["Symbol"] == "sidentificador" or token["Symbol"] == "snumero":
@@ -306,14 +310,14 @@ def analyzeWhile():
 	else:
 		error("a Identifier or Number",token["Line"])
 	if token["Symbol"] == "sfaca":
-		#auxrot2 = rot
-		# generate label
-		#rot += 1
+		auxLabel2 = label
+		codegeneration.generate(None,"JMPF",label,None)
+		label += 1
 		token = lexical.getToken()
 		print(token)
 		analyzeSimpleCommand()
-		# generate
-		#generate
+		codegeneration.generate(None,"JMP",auxLabel1,None)
+		codegeneration.generate(auxLabel2,"NULL",None,None)
 	else:
 		error("'faca'", token["Line"])
 
