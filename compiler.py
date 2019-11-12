@@ -5,14 +5,12 @@
 import argparse
 import lexical
 import syntactic
-# import semantic
 import codegeneration
-# import symboltable
+import symboltable
 
 def main():
     filePath = argsParser()
     lexical.getFile(filePath)
-    # label = 1
 
     token = lexical.getToken()
     print(token)
@@ -21,7 +19,7 @@ def main():
             token = lexical.getToken()
             print(token)
             if token["Symbol"] == "sidentificador":
-                # insert in symboltable
+                symboltable.inser(token["Lexeme"],"nomedoprograma",None,None)
                 token = lexical.getToken()
                 print(token)
                 if token["Symbol"] == "sponto_virgula":
