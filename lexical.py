@@ -10,38 +10,10 @@ operations = [">", "<", "=", "!"]
 punctuation = [";", ",", "(", ")", "."]
 errors = ["/", "%", "@", "#","$"]
 lines = []
+contentLines = []
+content = 0
+count = 0
 index = 0	# Stores the index of characters
-
-def getLine(word):
-	global indexLine
-	global lines
-
-	for i in range(indexLine,len(lines)):
-		if "{" in lines[i] or "}" in lines[i]:
-			if i >= indexLine:
-				indexLine += 1
-		elif lines[i] == "\n":
-			if i >= indexLine:
-				indexLine += 1
-		elif word in lines[i]:
-			if word == ";":
-				indexLine += 1
-				return indexLine-1
-			elif len(lines[i].split()) == 1 and ";" not in lines[i]:
-				indexLine += 1
-				return indexLine-1
-			elif word == "entao":
-				indexLine += 1
-				return indexLine-1
-			elif "fim" in lines[i + 1] and ";" not in lines[i]:
-				indexLine += 1
-				return indexLine-1
-			elif word == ".":
-				return indexLine
-			return indexLine
-		return indexLine
-
-
 
 # Define the symbol or the identifier
 def defineSymbol(id):
@@ -95,98 +67,143 @@ def defineSymbol(id):
 # Function to Resolve Commentary Section
 def resolveComments():
 	global index
+	global count
+	global content
+	
 	while characters[index] is not "}":
 		index +=1
+		content += 1
+		if content == (contentLines[count]):
+			content = 0
+			count += 1
 		if index >= len(characters):
 			break
-
 
 # Function to Resolve Identifiers and Reserved Words
 def resolveLetter():
 	global index
+	global count
+	global content
 
 	id = ""
 	id += characters[index]
 	index += 1
+	content += 1
+	if content == (contentLines[count]):
+		content = 0
+		count += 1
 	while characters[index].isalpha() or characters[index] is "_" or characters[index].isnumeric():
 		id += characters[index]
 		index += 1
-
+		content += 1
+		if content == (contentLines[count]):
+			content = 0
+			count += 1
 	lexeme = id
 	symbol = defineSymbol(id)
-	line = getLine(lexeme) + 1
+	line = count + 1
 
 	token = {"Lexeme": lexeme, "Symbol": symbol, "Line": line}
 	index -= 1
+	content -= 1
+	if content == -1:
+		count -= 1
+		content = (contentLines[count]-1)
+		
 	return token
 
 
 # Function to Resolve Digits
 def resolveNumber():
 	global index
+	global count
+	global content
 
 	num = ""
 	num += characters[index]
 	index += 1
+	content += 1
+	if content == (contentLines[count]):
+		content = 0
+		count += 1
 	while characters[index].isnumeric():
 		num += characters[index]
 		index += 1
+		content += 1
+		if content == (contentLines[count]):
+			content = 0
+			count += 1
 
 	lexeme = num
 	symbol = "snumero"
-	line = getLine(lexeme) + 1
+	line = count + 1
 	token = {"Lexeme": lexeme, "Symbol": symbol, "Line": line}
 
 	index -= 1
+	content -= 1
+	if content == -1:
+		count -= 1
+		content = (contentLines[count]-1)
 	return token
 
 
 # Function to Resolve Assignment characters
 def resolveAssignment():
 	global index
+	global count
+	global content
 
 	id = ""
 	id += characters[index]
 	index += 1
+	content += 1
+	if content == (contentLines[count]):
+		content = 0
+		count += 1
 	if characters[index] is "=":
 		id += characters[index]
 		lexeme = id
 		symbol = "satribuicao"
-		line = getLine(lexeme) + 1
+		line = count + 1
 		token = {"Lexeme": lexeme, "Symbol": symbol, "Line": line}
 		return token
 	else:
 		lexeme = id
 		symbol = "sdoispontos"
-		line = getLine(lexeme) + 1
+		line = count + 1
 		token = {"Lexeme": lexeme, "Symbol": symbol, "Line": line}
 
 		index -= 1
+		content -= 1
+		if content == -1:
+			count -= 1
+			content = (contentLines[count]-1)
 		return token
 
 # Function to Resolve Arithmetics operators
 def resolveOperators():
 	global index
+	global count
 
 
 	if characters[index] is "+":
 		lexeme = "+"
 		symbol = "smais"
-		line = getLine(lexeme) + 1
+		line = count + 1
 		token = {"Lexeme": lexeme, "Symbol": symbol, "Line": line}
 
 		return token
 	elif characters[index] is "-":
 		lexeme = "-"
 		symbol = "smenos"
-		line = getLine(lexeme) + 1
+		line = count + 1
 		token = {"Lexeme": lexeme, "Symbol": symbol, "Line": line}
 
 		return token
 	elif characters[index] is "*":
 		lexeme = "*"
 		symbol = "smult"
-		line = getLine(lexeme) + 1
+		line = count + 1
 		token = {"Lexeme": lexeme, "Symbol": symbol, "Line": line}
 
 		return token
@@ -195,69 +212,99 @@ def resolveOperators():
 # Function to Resolve Relational operators
 def resolveRelationals():
 	global index
+	global count
+	global content
 
 	id = ""
 
 	if characters[index] is ">":
 		id += characters[index]
 		index += 1
+		content += 1
+		if content == (contentLines[count]):
+			content = 0
+			count += 1
 		if characters[index] is "=":
 			id += characters[index]
 
 			lexeme = id
 			symbol = "smaiorig"
-			line = getLine(lexeme) + 1
+			line = count + 1
 			token = {"Lexeme": lexeme, "Symbol": symbol, "Line": line}
 
 
 		else:
 			lexeme = id
 			symbol = "smaior"
-			line = getLine(lexeme) + 1
+			line = count + 1
 			token = {"Lexeme": lexeme, "Symbol": symbol, "Line": line}
 
 			index -= 1
+			content -= 1
+			if content == -1:
+				count -= 1
+				content = (contentLines[count]-1)
 
 	elif characters[index] is "<":
 		id += characters[index]
 		index += 1
+		content += 1
+		if content == (contentLines[count]):
+			content = 0
+			count += 1
 		if characters[index] is "=":
 			id += characters[index]
 
 			lexeme = id
 			symbol = "smenorig"
-			line = getLine(lexeme) + 1
+			line = count + 1
 			token = {"Lexeme": lexeme, "Symbol": symbol, "Line": line}
 
 
 		else:
 			lexeme = id
 			symbol = "smenor"
-			line = getLine(lexeme) + 1
+			line = count + 1
 			token = {"Lexeme": lexeme, "Symbol": symbol, "Line": line}
 
 			index -= 1
+			content -= 1
+			if content == -1:
+				count -= 1
+				content = (contentLines[count]-1)
 
 	elif characters[index] is "!":
 		id += characters[index]
 		index += 1
+		content += 1
+		if content == (contentLines[count]):
+			content = 0
+			count += 1
 		if characters[index] is "=":
 			id += characters[index]
 
 			lexeme = id
 			symbol = "sdif"
-			line = getLine(lexeme) + 1
+			line = count + 1
 			token = {"Lexeme": lexeme, "Symbol": symbol, "Line": line}
 
 		else:
 			index -= 1
+			content -= 1
+			if content == -1:
+				count -= 1
+				content = (contentLines[count]-1)
 
 	elif characters[index] is "=":
 		id += characters[index]
 		index += 1
+		content += 1
+		if content == (contentLines[count]):
+			content = 0
+			count += 1
 		lexeme = id
 		symbol = "sigual"
-		line = getLine(lexeme) + 1
+		line = count + 1
 		token = {"Lexeme": lexeme, "Symbol": symbol, "Line": line}
 
 	return token
@@ -265,36 +312,36 @@ def resolveRelationals():
 # Function to Resolve Punctuation
 def resolvePunctuation():
 	global index
-
+	global count
 
 	if characters[index] is "(":
 		lexeme = "("
 		symbol = "sabre_parenteses"
-		line = getLine(lexeme) + 1
+		line = count + 1
 		token = {"Lexeme": lexeme, "Symbol": symbol, "Line": line}
 
 	elif characters[index] is ")":
 		lexeme = ")"
 		symbol = "sfecha_parenteses"
-		line = getLine(lexeme) + 1
+		line = count + 1
 		token = {"Lexeme": lexeme, "Symbol": symbol, "Line": line}
 
 	elif characters[index] is ".":
 		lexeme = "."
 		symbol = "sponto"
-		line = getLine(lexeme) + 1
+		line = count + 1
 		token = {"Lexeme": lexeme, "Symbol": symbol, "Line": line}
 
 	elif characters[index] is ";":
 		lexeme = ";"
 		symbol = "sponto_virgula"
-		line = getLine(lexeme) + 1
+		line = count + 1
 		token = {"Lexeme": lexeme, "Symbol": symbol, "Line": line}
 
 	elif characters[index] is ",":
 		lexeme = ","
 		symbol = "svirgula"
-		line = getLine(lexeme) + 1
+		line = count + 1
 		token = {"Lexeme": lexeme, "Symbol": symbol, "Line": line}
 
 	return token
@@ -303,47 +350,81 @@ def resolvePunctuation():
 # Starts to catch the Tokens
 def getToken():
 	global index
+	global content
+	global count
 
 	while index < len(characters):
 		if characters[index] is "{":
+			index += 1
+			content += 1
+			if content == (contentLines[count]):
+				content = 0
+				count += 1
 			resolveComments()
 			if(index >= len(characters)):
 				return "Error"
-			index += 1
 
 		elif characters[index].isnumeric():
 			token = resolveNumber()
 			index += 1
+			content += 1
+			if content == (contentLines[count]):
+				content = 0
+				count += 1
 			return token
 
 		elif characters[index].isalpha():
 			token = resolveLetter()
 			index += 1
+			content += 1
+			if content == (contentLines[count]):
+				content = 0
+				count += 1
 			return token
 
 		elif characters[index] == ":":
 			token = resolveAssignment()
 			index += 1
+			content += 1
+			if content == (contentLines[count]):
+				content = 0
+				count += 1
 			return token
 
 		elif characters[index] in arithmetics:
 			token = resolveOperators()
 			index += 1
+			content += 1
+			if content == (contentLines[count]):
+				content = 0
+				count += 1
 			return token
 
 		elif characters[index] in operations:
 			token = resolveRelationals()
 			index += 1
+			content += 1
+			if content == (contentLines[count]):
+				content = 0
+				count += 1
 			return token
 
 		elif characters[index] in punctuation:
 			token = resolvePunctuation()
 			index += 1
+			content += 1
+			if content == (contentLines[count]):
+				content = 0
+				count += 1
 			return token
 
 		elif characters[index] is not " ":
 			error(characters[index])
 		index +=1
+		content +=1
+		if content == (contentLines[count]):
+			content = 0
+			count += 1
 
 	return "End"
 
@@ -351,16 +432,22 @@ def getToken():
 # Open the file and call the File Reader
 def getFile(filePath):
 	global lines
+	global contentLines
 
 	try:
 		file = open(filePath,'r')
 		lines = file.readlines()
 		for line in lines:
-			words = line.split()
-			for word in words:
-				for indexLetter in range(0,len(word)):
-					characters.append(word[indexLetter])
+			if line == "\n":
+				contentLines.append(1)
 				characters.append(" ")
+			else:
+				contentLines.append(len(line))
+				for indexLetter in range(0,len(line)):
+					if line[indexLetter] != "\n":
+						characters.append(line[indexLetter])
+					else:
+						characters.append(" ")		
 		file.close()
 
 	except:
@@ -370,8 +457,7 @@ def getFile(filePath):
 
 
 def error(wrongChar):
-	global lines
-	for line in lines:
-		if wrongChar in line:
-			print("Found a error: Unexpected character " + wrongChar + " in line " + str(lines.index(line) + 1) )
+	global count
+	
+	print("Found a error: Unexpected character " + wrongChar + " in line " + str(count + 1))	
 	exit()
