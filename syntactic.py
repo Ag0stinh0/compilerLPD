@@ -4,6 +4,7 @@
 
 import lexical
 import codegeneration
+import symboltable
 
 
 token = {}
@@ -44,7 +45,7 @@ def analyzeVar():
 	while True:
 		if token["Symbol"] == "sidentificador":
 			if not symboltable.searchVarDuplicity(token["Lexeme"]):
-				symboltable.insert(token["Lexeme"],"variavel")
+				symboltable.insert(token["Lexeme"],"variavel",None,None)
 				token = lexical.getToken()
 				print(token)
 				if token["Symbol"] == "svirgula" or token["Symbol"] == "sdoispontos":
@@ -148,6 +149,8 @@ def analyzeFunctionDeclaration():
 					print(token)
 					if token["Symbol"] == "sponto_virgula":
 						analyzeBlock()
+					else:
+						error("an ;",token["Line"])
 				else:
 					error("'inteiro' or 'booleano'", token["Line"])
 			else:
@@ -387,9 +390,11 @@ def analyzeTerm():
 def analyzeFactor():
 	global token
 
+	level = "1"
+	ind = "2"
 	if token["Symbol"] == "sidentificador":
 		if symboltable.search(token["Lexeme"],level,ind):
-			if symboltable.get(ind)["Type"] == "booleano" or if symboltable.get(ind)["Type"] == "inteiro":
+			if symboltable.get(ind)["Type"] == "booleano" or symboltable.get(ind)["Type"] == "inteiro":
 				analyzeFunctionCall()
 			else:
 				token = lexical.getToken()

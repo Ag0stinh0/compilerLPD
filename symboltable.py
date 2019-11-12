@@ -3,35 +3,38 @@
 # 	Pedro Andrade Caccavaro - 16124679
 
 
-def searchVarDeclaration():
+def searchVarDeclaration(x):
+    return True
+
+def searchVarDuplicity(x):
+    return False
+
+def searchVarFuncDeclaration(x):
+    return True
+
+def insert(x,y,w,z):
     print("OK")
 
-def searchVarDuplicity():
+
+def insertType(x):
     print("OK")
 
-def searchVarFuncDeclaration():
-    print("OK")
-
-def insert():
-    print("OK")
-
-def insertType():
-    print("OK")
-
-def searchProcDeclaration():
-    print("OK")
+def searchProcDeclaration(x):
+    return False
 
 def restoreLevel():
     print("OK")
 
-def searchFuncDeclaration():
+def searchFuncDeclaration(x):
+    return False
+
+def defineFuncType(x):
     print("OK")
 
-def defineFuncType():
-    print("OK")
+def search(x,y,z):
+    return True
 
-def search():
-    print("OK")
-
-def get():
-    print("OK")
+def get(x):
+    z = {}
+    z["Type"] = "booleano"
+    return z

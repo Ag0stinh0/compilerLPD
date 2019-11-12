@@ -6,7 +6,7 @@ import argparse
 import lexical
 import syntactic
 # import semantic
-# import generator
+import codegeneration
 # import symboltable
 
 def main():
@@ -30,12 +30,6 @@ def main():
                     print(token)
                     if token == "End":
                         print("SUCESS!")
-		    #if token["Symbol"] == "sponto":
-			# token = lexical.getToken()
-			#if token == "End":
-			    #   print("SUCESS!")
-			#else:
-			    #   error()
                     else:
                         error("the end of file", token["Line"])
                 else:
@@ -46,6 +40,7 @@ def main():
             error("programa", token["Line"])
     else:
         print("Found an error: Expected } to finish the comment!")
+    codegeneration.makeObject("teste")
 
 
 def argsParser():
