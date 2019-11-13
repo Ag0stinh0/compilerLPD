@@ -3,6 +3,8 @@
 # 	Pedro Andrade Caccavaro - 16124679
 
 import lexical
+import codegeneration
+import symboltable
 
 token = {}
 label = 1
@@ -12,11 +14,8 @@ def analyzeBlock():
 
 	token = lexical.getToken()
 	print(token)
-	
 	analyzeVarDeclaration()
-
 	analyzeSubRoutine()
-
 	analyzeCommand()
 
 def analyzeVarDeclaration():
@@ -42,7 +41,7 @@ def analyzeVar():
 	while True:
 		if token["Symbol"] == "sidentificador":
 			#if not symboltable.searchVarDuplicity(token["Lexeme"]):
-				#symboltable.insert(token["Lexeme"],"variavel")
+				#symboltable.insert(token["Lexeme"],"variavel",None,None)
 			token = lexical.getToken()
 			print(token)
 			if token["Symbol"] == "svirgula" or token["Symbol"] == "sdoispontos":
@@ -76,25 +75,28 @@ def analyzeType():
 
 def analyzeSubRoutine():
 	global token
-	#auxrot, flag inteiro
+	global label
 
 	flag = 0
-	if token["Symbol"] == "sprocedimento" or token["Symbol"] == "sfuncao":
-		# labels
-		print("TODO")
+	#if token["Symbol"] == "sprocedimento" or token["Symbol"] == "sfuncao":
+		#auxLabel = label
+		#codegeneration.generate(None,"JMP",label,None)
+		#label += 1
+		#flag = 1
 	while token["Symbol"] == "sprocedimento" or token["Symbol"] == "sfuncao":
 		if token["Symbol"] == "sprocedimento":
 			analyzeProcedureDeclaration()
 		else:
 			analyzeFunctionDeclaration()
+		token = lexical.getToken()
+		print(token)
 		if token["Symbol"] == "sponto_virgula":
 			token = lexical.getToken()
 			print(token)
 		else:
 			error("an ;", token["Line"])
 	if flag == 1:
-		# generate
-		print("TODO")
+		codegeneration.generate(auxLabel,"NULL",None,None)
 
 def analyzeProcedureDeclaration():
 	global token
@@ -105,6 +107,8 @@ def analyzeProcedureDeclaration():
 	if token["Symbol"] == "sidentificador":
 		#if not symboltable.searchProcDeclaration(token["Lexeme"]):
 			#symboltable.insert(token["Lexeme"],"procedimento",level,label)
+			#codegeneration.generate(label,"NULL",None,None)
+			#label += 1
 		token = lexical.getToken()
 		print(token)
 		if token["Symbol"] == "sponto_virgula":
@@ -141,7 +145,7 @@ def analyzeFunctionDeclaration():
 				if token["Symbol"] == "sponto_virgula":
 					analyzeBlock()
 				else:
-					error("an ;", token["Line"])
+					error("an ;",token["Line"])
 			else:
 				error("'inteiro' or 'booleano'", token["Line"])
 		else:
@@ -165,19 +169,8 @@ def analyzeCommand():
 				print(token)
 				if token["Symbol"] != "sfim":
 					analyzeSimpleCommand()
-				else:
-					token = lexical.getToken()
-					print(token)
-					break
 			else:
 				error("an ;", token["Line"])
-			if token["Symbol"] == "sfim":
-				token = lexical.getToken()
-				print(token)
-				break
-		if token["Symbol"] != "sponto" and token["Symbol"] != "sponto_virgula":
-			error("'fim'", token["Line"])
-
 	else:
 		error("'inicio'", token["Line"])
 
@@ -196,6 +189,9 @@ def analyzeSimpleCommand():
 		analyzeWrite()
 	else:
 		analyzeCommand()
+		if token["Symbol"] == "sfim":
+			token = lexical.getToken()
+			print(token)
 
 def analyzeProcedureAssignment():
 	global token
@@ -204,26 +200,18 @@ def analyzeProcedureAssignment():
 	print(token)
 	if token["Symbol"] == "satribuicao":
 		analyzeAssignment()
-	else:
-		analyzeProcedureCall()
+	#else:
+		#analyzeProcedureCall()
 
 def analyzeAssignment():
 	global token
 
 	token = lexical.getToken()
 	print(token)
-	if token["Symbol"] == "sidentificador" or token["Symbol"] == "snumero":
-		token = lexical.getToken()
-		print(token)
-		analyzeExpression()
-	else:
-		error("a Identifier or Number",token["Line"])
+	analyzeExpression()
 
-def analyzeProcedureCall():
-	global token
-
-	token = lexical.getToken()
-	print(token)
+# It is necessary think what happened here
+# def analyzeProcedureCall():
 
 def analyzeRead():
 	global token
@@ -275,42 +263,32 @@ def analyzeWrite():
 
 def analyzeWhile():
 	global token
-	# auxrot1, auxrot2
+	global label
 
-	#auxrot1 = rotulo
-	# generate label
+	#auxLabel1 = label
+	#codegeneration.generate(label,"NULL",None,None)
+	#label += 1
 	token = lexical.getToken()
 	print(token)
-	if token["Symbol"] == "sidentificador" or token["Symbol"] == "snumero":
-		token = lexical.getToken()
-		print(token)
-		analyzeExpression()
-	else:
-		error("a Identifier or Number",token["Line"])
+	analyzeExpression()
 	if token["Symbol"] == "sfaca":
-		#auxrot2 = rot
-		# generate label
-		#rot += 1
+		#auxLabel2 = label
+		#codegeneration.generate(None,"JMPF",label,None)
+		#label += 1
 		token = lexical.getToken()
 		print(token)
 		analyzeSimpleCommand()
-		# generate
-		#generate
+		#codegeneration.generate(None,"JMP",auxLabel1,None)
+		#codegeneration.generate(auxLabel2,"NULL",None,None)
 	else:
 		error("'faca'", token["Line"])
 
 def analyzeIf():
 	global token
 
-	print("Analyzing if")
 	token = lexical.getToken()
 	print(token)
-	if token["Symbol"] == "sidentificador" or token["Symbol"] == "snumero":
-		token = lexical.getToken()
-		print(token)
-		analyzeExpression()
-	else:
-		error("a Identifier or Number",token["Line"])
+	analyzeExpression()
 	if token["Symbol"] == "sentao":
 		token = lexical.getToken()
 		print(token)
@@ -329,12 +307,7 @@ def analyzeExpression():
 	if token["Symbol"] == "smaior" or token["Symbol"] == "smaiorig" or token["Symbol"] == "sigual" or token["Symbol"] == "smenor" or token["Symbol"] == "smenorig" or token["Symbol"] == "sdif":
 		token = lexical.getToken()
 		print(token)
-		if token["Symbol"] == "sidentificador" or token["Symbol"] == "snumero":
-			token = lexical.getToken()
-			print(token)
-			analyzeSimpleExpression()
-		else:
-			error("a Identifier or Number",token["Line"])
+		analyzeSimpleExpression()
 
 def analyzeSimpleExpression():
 	global token
@@ -342,11 +315,11 @@ def analyzeSimpleExpression():
 	if token["Symbol"] == "smais" or token["Symbol"] == "smenos":
 		token = lexical.getToken()
 		print(token)
+	analyzeTerm()
+	while token["Symbol"] == "smais" or token["Symbol"] == "smenos" or token["Symbol"] == "sou":
+		token = lexical.getToken()
+		print(token)
 		analyzeTerm()
-		while token["Symbol"] == "smais" or token["Symbol"] == "smenos" or token["Symbol"] == "sou":
-			token = lexical.getToken()
-			print(token)
-			analyzeTerm()
 
 def analyzeTerm():
 	global token
@@ -360,12 +333,14 @@ def analyzeTerm():
 def analyzeFactor():
 	global token
 
+	level = "1"
+	ind = "2"
 	if token["Symbol"] == "sidentificador":
 		#if symboltable.search(token["Lexeme"],level,ind):
 			#if symboltable.get(ind)["Type"] == "booleano" or symboltable.get(ind)["Type"] == "inteiro":
 		analyzeFunctionCall()
 			#else:
-		#token = lexical.getToken()
+				#token = lexical.getToken()
 		#else:
 			#print("Not in table")
 	elif token["Symbol"] == "snumero":
@@ -376,7 +351,6 @@ def analyzeFactor():
 		print(token)
 		analyzeFactor()
 	elif token["Symbol"] == "sabre_parenteses":
-		print("ok")
 		token = lexical.getToken()
 		print(token)
 		analyzeExpression()
