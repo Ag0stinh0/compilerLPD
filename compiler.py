@@ -5,21 +5,23 @@
 import argparse
 import lexical
 import syntactic
-import codegeneration
-import symboltable
+# import semantic
+# import generator
+# import symboltable
 
 def main():
     filePath = argsParser()
     lexical.getFile(filePath)
+    # label = 1
 
     token = lexical.getToken()
-    print(token)
     if token != "Error":
+        print(token)
         if token["Symbol"] == "sprograma":
             token = lexical.getToken()
             print(token)
             if token["Symbol"] == "sidentificador":
-                symboltable.inser(token["Lexeme"],"nomedoprograma",None,None)
+                # insert in symboltable
                 token = lexical.getToken()
                 print(token)
                 if token["Symbol"] == "sponto_virgula":
@@ -28,6 +30,12 @@ def main():
                     print(token)
                     if token == "End":
                         print("SUCESS!")
+		    #if token["Symbol"] == "sponto":
+			# token = lexical.getToken()
+			#if token == "End":
+			    #   print("SUCESS!")
+			#else:
+			    #   error()
                     else:
                         error("the end of file", token["Line"])
                 else:
@@ -38,7 +46,6 @@ def main():
             error("programa", token["Line"])
     else:
         print("Found an error: Expected } to finish the comment!")
-    codegeneration.makeObject("teste")
 
 
 def argsParser():
