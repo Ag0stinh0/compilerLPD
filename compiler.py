@@ -5,14 +5,12 @@
 import argparse
 import lexical
 import syntactic
-# import semantic
-# import generator
-# import symboltable
+import codegeneration
+import symboltable
 
 def main():
     filePath = argsParser()
     lexical.getFile(filePath)
-    # label = 1
 
     token = lexical.getToken()
     if token != "Error":
@@ -21,23 +19,25 @@ def main():
             token = lexical.getToken()
             print(token)
             if token["Symbol"] == "sidentificador":
-                # insert in symboltable
+                #symboltable.insert(token["Lexeme"],"nomedoprograma",None,None)
                 token = lexical.getToken()
                 print(token)
                 if token["Symbol"] == "sponto_virgula":
                     syntactic.analyzeBlock()
                     token = lexical.getToken()
                     print(token)
-                    if token == "End":
-                        print("SUCESS!")
-		    #if token["Symbol"] == "sponto":
-			# token = lexical.getToken()
-			#if token == "End":
-			    #   print("SUCESS!")
-			#else:
-			    #   error()
+                    if token != "End":
+                        if token["Symbol"] == "sponto":
+                            token = lexical.getToken()
+                            print(token)
+                            if token == "End":
+                                print("SUCESS!")
+                            else:
+                                error("the end of file", token["Line"])
+                        else:
+                            error(".", token["Line"])
                     else:
-                        error("the end of file", token["Line"])
+                        print("Found an error: Expected . to finish the program!")
                 else:
                     error("an ;", token["Line"])
             else:
@@ -46,7 +46,7 @@ def main():
             error("programa", token["Line"])
     else:
         print("Found an error: Expected } to finish the comment!")
-
+    codegeneration.makeObject("teste")
 
 def argsParser():
     parser = argparse.ArgumentParser(description="Simple compiler")
@@ -59,15 +59,9 @@ def argsParser():
     else:
         return args.path
 
-
 def error(string,line):
     print("Found an error: Expected " + string + " in line " + str(line))
     exit()
-
-
-
-
-
 
 if __name__ == '__main__':
     main()
