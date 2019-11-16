@@ -19,7 +19,7 @@ def main():
             token = lexical.getToken()
             print(token)
             if token["Symbol"] == "sidentificador":
-                #symboltable.insert(token["Lexeme"],"nomedoprograma",None,None)
+                symboltable.insert(token["Lexeme"],"program",0,None)
                 token = lexical.getToken()
                 print(token)
                 if token["Symbol"] == "sponto_virgula":

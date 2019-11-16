@@ -6,127 +6,112 @@
 table = []
 index = 0
 
-
-def searchVarDeclaration(lexeme):
+def searchDuplicity(lexeme, level):
     global table
 
     for i in range(0,len(table)):
-        if table[i]["Name"] == "variavel":
-            if table[i]["Lexeme"] == lexeme:
+        if table[i]["Lexeme"] == lexeme:
+            if table[i]["Level"] == level:
                 return True
     return False
-
-
-def searchVarDuplicity(lexeme):
-    global table
-
-    for i in range(0,len(table)):
-        if table[i]["Name"] == "variavel":
-            if table[i]["Lexeme"] == lexeme:
-                return True
-    return False
-
-
-def searchVarFuncDeclaration(x):
-    global table
-
-    for i in range(0,len(table)):
-        if table[i]["Name"] == "variavel":
-            if table[i]["Lexeme"] == lexeme:
-                return True
-    return False
-
 
 def insert(lexeme,name,level,label):
     global table
-
-    symbol = {"Lexeme":lexeme,"Name":name,"Level":level,"Label":label,"Memory":None}
-    if name == "variavel":
-        symbol["Type"] = None
+	
+    if label == None:
+        if name == "program" or name == "procedure":
+            symbol = {"Lexeme":lexeme,"Name":name,"Level":level}
+        else:
+            symbol = {"Lexeme":lexeme,"Name":name,"Level":level,"Type":None}
+    else:
+        symbol = {"Lexeme":lexeme,"Name":name,"Level":level,"Type":None,"Memory":None}
     table.append(symbol)
 
 
-def defineType(type):
+def insertVarType(type):
     global table
-    global index
 
     for i in range(0,len(table)):
-        if table[i]["Name"] == "variavel":
+        if table[i]["Name"] == "variable":
             if table[i]["Type"] == None:
                 table[i]["Type"] = type
-
-
-
-def searchProcDeclaration(lexeme):
-    global table
-
-    for i in range(0,len(table)):
-        if table[i]["Name"] == "procedimento":
-            if table[i]["Lexeme"] == lexeme:
-                return True
-    return False
-
-
-def restoreLevel():
-    global table
-
-    aux = len(table) - 1
-    while True:
-        if table[aux]["Level"] == "L":
-            table.pop()
-            aux -= 1
-        else:
-            break
-
-
-def searchFuncDeclaration(x):
-    global table
-
-    for i in range(0,len(table)):
-        if table[i]["Name"] == "procedimento":
-            if table[i]["Lexeme"] == lexeme:
-                return True
-    return False
-
-
-def defineFuncType(type):
+				
+def insertFuncType(type):
     global table
 
     table[len(table) - 1]["Type"] = type
 
-
-def search(lexeme,level):
-    ind = 0
+def restoreLevel(level):
     global table
-    ## CHANGE IN THE syntactic ##
+
+    position = len(table) - 1
+    while True:
+        if table[position]["Level"] == level:
+            table.pop()
+            position -= 1
+        else:
+            break
+			
+def seeAllTable():
+    global table
+	
+    print("")
+    print("------- Symbol Table -------")
     for i in range(0,len(table)):
-        if table[i]["Name"] == "procedimento":
-            if table[i]["Lexeme"] == lexeme:
-                ind = i
-                return ind
-    return -1
+        print(table[i])
+    print("")
 
-
-def get(ind):
+def hasIdentifier(lexeme):
     global table
-
-    return table[ind]["Type"]
-
-
-def main():
+    
+    position = len(table) - 1
+    while position >= 0:
+        if table[position]["Lexeme"] == lexeme:
+            if table[position]["Name"] == "variable" or table[position]["Name"] == "function":
+                return True
+        position -= 1
+    return False
+	
+def isFunctionCall(lexeme):
     global table
-    token = {}
-    token["Lexeme"] = "namaiejdoa"
-    insert(token["Lexeme"],"nomedoprograma",None,None)
-    token["Lexeme"] = "LOL"
-    insert(token["Lexeme"],"variavel","L",None)
-    token["Lexeme"] = "namaiejdoa"
-    insert(token["Lexeme"],"nomedoprograma",None,None)
-    token["Lexeme"] = "sinteiro"
-    defineType(token["Lexeme"])
-    for symbol in table:
-        print (symbol)
-
-
-if __name__ == '__main__':
-    main()
+    
+    position = len(table) - 1
+    while position >= 0:
+        if table[position]["Lexeme"] == lexeme:
+            if table[position]["Name"] == "function":
+                return True
+        position -= 1
+    return False
+	
+def isVariable(lexeme):
+    global table
+    
+    position = len(table) - 1
+    while position >= 0:
+        if table[position]["Lexeme"] == lexeme:
+            if table[position]["Name"] == "variable":
+                return True
+        position -= 1
+    return False
+	
+def isProcedure(lexeme):
+    global table
+    
+    position = len(table) - 1
+    while position >= 0:
+        if table[position]["Lexeme"] == lexeme:
+            if table[position]["Name"] == "procedure":
+                return True
+        position -= 1
+    return False
+	
+def getType(lexeme):
+    global table
+    
+    position = len(table) - 1
+    while position >= 0:
+        if table[position]["Lexeme"] == lexeme:
+            if table[position]["Name"] == "variable" or table[position]["Name"] == "function":
+                return table[position]["Type"]
+        position -= 1
+        

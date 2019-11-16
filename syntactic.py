@@ -5,9 +5,17 @@
 import lexical
 import codegeneration
 import symboltable
+import posfixa
 
+scope = 0
 token = {}
 label = 1
+expression = []
+symbolVerify = ["+", "-", "*", ">", "<", "=", "<=", ">=", "!=", "ou", "e", "div"]
+especialSymbol = ["-u", "+u", "nao"]
+resultTypeInteger = ["+", "-", "*", "div"]
+resultTypeBoolean = [">", "<", "=", "<=", ">=", "!="]
+verifyForBoolean = ["=", "!=", "ou", "e"]
 
 def analyzeBlock():
 	global token
@@ -37,23 +45,24 @@ def analyzeVarDeclaration():
 
 def analyzeVar():
 	global token
+	global scope
 
 	while True:
 		if token["Symbol"] == "sidentificador":
-			#if not symboltable.searchVarDuplicity(token["Lexeme"]):
-				#symboltable.insert(token["Lexeme"],"variavel",None,None)
-			token = lexical.getToken()
-			print(token)
-			if token["Symbol"] == "svirgula" or token["Symbol"] == "sdoispontos":
-				if token["Symbol"] == "svirgula":
-					token = lexical.getToken()
-					print(token)
-					if token["Symbol"] == "sdoispontos":
-						error("an Identifier", token["Line"])
+			if not symboltable.searchDuplicity(token["Lexeme"],scope):
+				symboltable.insert(token["Lexeme"],"variable",scope,True)
+				token = lexical.getToken()
+				print(token)
+				if token["Symbol"] == "svirgula" or token["Symbol"] == "sdoispontos":
+					if token["Symbol"] == "svirgula":
+						token = lexical.getToken()
+						print(token)
+						if token["Symbol"] == "sdoispontos":
+							error("an Identifier", token["Line"])
+				else:
+					error("an : or , ", token["Line"])
 			else:
-				error("an : or , ", token["Line"])
-			#else:
-				#print("FOUND duplicity")
+				errorTable(token["Lexeme"], token["Line"])
 		else:
 			error("an Identifier", token["Line"])
 
@@ -68,8 +77,8 @@ def analyzeType():
 
 	if token["Symbol"] != "sinteiro" and token["Symbol"] != "sbooleano":
 		error("'inteiro' or 'booleano'",token["Line"])
-	#else:
-		#symboltable.insertType(token["Lexeme"])
+	else:
+		symboltable.insertVarType(token["Lexeme"])
 	token = lexical.getToken()
 	print(token)
 
@@ -91,6 +100,7 @@ def analyzeSubRoutine():
 		token = lexical.getToken()
 		print(token)
 		if token["Symbol"] == "sponto_virgula":
+			symboltable.seeAllTable()
 			token = lexical.getToken()
 			print(token)
 		else:
@@ -100,61 +110,67 @@ def analyzeSubRoutine():
 
 def analyzeProcedureDeclaration():
 	global token
+	global scope
 
 	token = lexical.getToken()
 	print(token)
-	level = "L"
 	if token["Symbol"] == "sidentificador":
-		#if not symboltable.searchProcDeclaration(token["Lexeme"]):
-			#symboltable.insert(token["Lexeme"],"procedimento",level,label)
+		if not symboltable.searchDuplicity(token["Lexeme"],scope):
+			symboltable.insert(token["Lexeme"],"procedure",scope,None)
+			scope += 1
 			#codegeneration.generate(label,"NULL",None,None)
 			#label += 1
-		token = lexical.getToken()
-		print(token)
-		if token["Symbol"] == "sponto_virgula":
-			analyzeBlock()
+			token = lexical.getToken()
+			print(token)
+			if token["Symbol"] == "sponto_virgula":
+				analyzeBlock()
+			else:
+				error("an ;", token["Line"])
 		else:
-			error("an ;", token["Line"])
-		#else:
-			#print("Proc Declared")
+			errorTable(token["Lexeme"], token["Line"])
 	else:
 		error("a Identifier", token["Line"])
-	#symboltable.restoreLevel()
+	symboltable.seeAllTable()
+	symboltable.restoreLevel(scope)
+	scope -= 1
 
 def analyzeFunctionDeclaration():
 	global token
+	global scope
 
 	token = lexical.getToken()
 	print(token)
-	level = "L"
 	if token["Symbol"] == "sidentificador":
-		#if not symboltable.searchFuncDeclaration(token["Lexeme"]):
-			#symboltable.insert(token["Lexeme"],None,level,label)
-		token = lexical.getToken()
-		print(token)
-		if token["Symbol"] == "sdoispontos":
+		if not symboltable.searchDuplicity(token["Lexeme"],scope):
+			symboltable.insert(token["Lexeme"],"function",scope,None)
+			scope += 1
 			token = lexical.getToken()
 			print(token)
-			if token["Symbol"] == "sinteiro" or token["Symbol"] == "sbooleano":
-				#if token["Symbol"] == "sinteiro":
-				#	symboltable.defineFuncType("inteiro")
-				#else:
-				#	symboltable.defineFuncType("booleano")
+			if token["Symbol"] == "sdoispontos":
 				token = lexical.getToken()
 				print(token)
-				if token["Symbol"] == "sponto_virgula":
-					analyzeBlock()
+				if token["Symbol"] == "sinteiro" or token["Symbol"] == "sbooleano":
+					if token["Symbol"] == "sinteiro":
+						symboltable.insertFuncType("inteiro")
+					else:
+						symboltable.insertFuncType("booleano")
+					token = lexical.getToken()
+					print(token)
+					if token["Symbol"] == "sponto_virgula":
+						analyzeBlock()
+					else:
+						error("an ;",token["Line"])
 				else:
-					error("an ;",token["Line"])
+					error("'inteiro' or 'booleano'", token["Line"])
 			else:
-				error("'inteiro' or 'booleano'", token["Line"])
+				error("an :", token["Line"])
 		else:
-			error("an :", token["Line"])
-		#else:
-			#print("Func declared")
+			errorTable(token["Lexeme"],token["Line"])
 	else:
 		error("a Identifier", token["Line"])
-	#symboltable.restoreLevel()
+	symboltable.seeAllTable()
+	symboltable.restoreLevel(scope)
+	scope -= 1
 
 def analyzeCommand():
 	global token
@@ -196,19 +212,35 @@ def analyzeSimpleCommand():
 def analyzeProcedureAssignment():
 	global token
 
-	token = lexical.getToken()
-	print(token)
-	if token["Symbol"] == "satribuicao":
-		analyzeAssignment()
-	#else:
-		#analyzeProcedureCall()
+	if symboltable.isVariable(token["Lexeme"]):
+		token = lexical.getToken()
+		print(token)
+		if token["Symbol"] == "satribuicao":
+			analyzeAssignment()
+		else:
+			error("a :=", token["Line"])
+	else:
+		#Is it right pass functions in this case?
+		if symboltable.isProcedure(token["Lexeme"]):
+			token = lexical.getToken()
+			print(token)
+			#analyzeProcedureCall()
+		else:
+			print("Found an error: " + token["Lexeme"] + " was not declared as variable or procedure")
+			exit()
 
 def analyzeAssignment():
 	global token
+	global expression
 
 	token = lexical.getToken()
 	print(token)
 	analyzeExpression()
+	print("\n Expression:")
+	print(expression)
+	print("")
+	posfixa.getPosFixa(expression)
+	expression.clear()
 
 # It is necessary think what happened here
 # def analyzeProcedureCall():
@@ -222,20 +254,21 @@ def analyzeRead():
 		token = lexical.getToken()
 		print(token)
 		if token["Symbol"] == "sidentificador":
-			#if symboltable.searchVarDeclaration(token["Lexeme"]):
-			token = lexical.getToken()
-			print(token)
-			if token["Symbol"] == "sfecha_parenteses":
+			if symboltable.hasIdentifier(token["Lexeme"]):
 				token = lexical.getToken()
 				print(token)
+				if token["Symbol"] == "sfecha_parenteses":
+					token = lexical.getToken()
+					print(token)
+				else:
+					error("a )", token["Line"])
 			else:
-				error("an )", token["Line"])
-			#else:
-				#print("Var no declared")
+				print("Found an error: " + token["Lexeme"] + " was not declared as variable or function")
+				exit()
 		else:
-			error("a Identifier", token["Line"])
+			error("an identifier", token["Line"])
 	else:
-		error("an (", token["Line"])
+		error("a (", token["Line"])
 
 def analyzeWrite():
 	global token
@@ -246,24 +279,26 @@ def analyzeWrite():
 		token = lexical.getToken()
 		print(token)
 		if token["Symbol"] == "sidentificador":
-			#if symboltable.searchVarFuncDeclaration(token["Lexeme"]):
-			token = lexical.getToken()
-			print(token)
-			if token["Symbol"] == "sfecha_parenteses":
+			if symboltable.isVariable(token["Lexeme"]):
 				token = lexical.getToken()
 				print(token)
+				if token["Symbol"] == "sfecha_parenteses":
+					token = lexical.getToken()
+					print(token)
+				else:
+					error("a )", token["Line"])
 			else:
-				error("an )", token["Line"])
-			#else:
-				#print("Var Func not declared")
+				print("Found an error: " + token["Lexeme"] + " was not declared as variable")
+				exit()
 		else:
-			error("a Identifier", token["Line"])
+			error("an identifier", token["Line"])
 	else:
-		error("an (", token["Line"])
+		error("a (", token["Line"])
 
 def analyzeWhile():
 	global token
 	global label
+	global expression
 
 	#auxLabel1 = label
 	#codegeneration.generate(label,"NULL",None,None)
@@ -271,6 +306,12 @@ def analyzeWhile():
 	token = lexical.getToken()
 	print(token)
 	analyzeExpression()
+	print("\n Expression:")
+	print(expression)
+	print("")
+	expressionPosFixa = posfixa.getPosFixa(expression)
+	validateContentExpression(expressionPosFixa)
+	expression.clear()
 	if token["Symbol"] == "sfaca":
 		#auxLabel2 = label
 		#codegeneration.generate(None,"JMPF",label,None)
@@ -285,10 +326,17 @@ def analyzeWhile():
 
 def analyzeIf():
 	global token
+	global expression
 
 	token = lexical.getToken()
 	print(token)
 	analyzeExpression()
+	print("\n Expression:")
+	print(expression)
+	print("")
+	expressionPosFixa = posfixa.getPosFixa(expression)
+	validateContentExpression(expressionPosFixa)
+	expression.clear()
 	if token["Symbol"] == "sentao":
 		token = lexical.getToken()
 		print(token)
@@ -302,64 +350,78 @@ def analyzeIf():
 
 def analyzeExpression():
 	global token
+	global expression
 
 	analyzeSimpleExpression()
 	if token["Symbol"] == "smaior" or token["Symbol"] == "smaiorig" or token["Symbol"] == "sigual" or token["Symbol"] == "smenor" or token["Symbol"] == "smenorig" or token["Symbol"] == "sdif":
+		expression.append(token["Lexeme"])
 		token = lexical.getToken()
 		print(token)
 		analyzeSimpleExpression()
 
 def analyzeSimpleExpression():
 	global token
+	global expression
 
 	if token["Symbol"] == "smais" or token["Symbol"] == "smenos":
+		expression.append(token["Lexeme"] + "u")
 		token = lexical.getToken()
 		print(token)
 	analyzeTerm()
 	while token["Symbol"] == "smais" or token["Symbol"] == "smenos" or token["Symbol"] == "sou":
+		expression.append(token["Lexeme"])
 		token = lexical.getToken()
 		print(token)
 		analyzeTerm()
 
 def analyzeTerm():
 	global token
+	global expression
 
 	analyzeFactor()
 	while token["Symbol"] == "smult" or token["Symbol"] == "sdiv" or token["Symbol"] == "se":
+		expression.append(token["Lexeme"])
 		token = lexical.getToken()
 		print(token)
 		analyzeFactor()
 
 def analyzeFactor():
 	global token
+	global expression
 
-	level = "1"
-	ind = "2"
 	if token["Symbol"] == "sidentificador":
-		#if symboltable.search(token["Lexeme"],level,ind):
-			#if symboltable.get(ind)["Type"] == "booleano" or symboltable.get(ind)["Type"] == "inteiro":
-		analyzeFunctionCall()
-			#else:
-				#token = lexical.getToken()
-		#else:
-			#print("Not in table")
+		expression.append(token["Lexeme"])
+		if symboltable.hasIdentifier(token["Lexeme"]):
+			if symboltable.isFunctionCall(token["Lexeme"]):
+				analyzeFunctionCall()
+			else:
+				token = lexical.getToken()
+				print(token)
+		else:
+			print("Found an error: " + token["Lexeme"] + " was not declared as variable or function")
+			exit()
 	elif token["Symbol"] == "snumero":
+		expression.append(token["Lexeme"])
 		token = lexical.getToken()
 		print(token)
 	elif token["Symbol"] == "snao":
+		expression.append(token["Lexeme"])
 		token = lexical.getToken()
 		print(token)
 		analyzeFactor()
 	elif token["Symbol"] == "sabre_parenteses":
+		expression.append(token["Lexeme"])
 		token = lexical.getToken()
 		print(token)
 		analyzeExpression()
 		if token["Symbol"] == "sfecha_parenteses":
+			expression.append(token["Lexeme"])
 			token = lexical.getToken()
 			print(token)
 		else:
 			error("an )", token["Line"])
 	elif token["Symbol"] == "sverdadeiro" or token["Symbol"] == "sfalso":
+		expression.append(token["Lexeme"])
 		token = lexical.getToken()
 		print(token)
 	else:
@@ -370,7 +432,84 @@ def analyzeFunctionCall():
 
 	token = lexical.getToken()
 	print(token)
+	
+def validateContentExpression(expressionPosFixa):
+	global token
+	variableList = []
+	typeResult = []
+	
+	for position in range(0,len(expressionPosFixa)):
+		if expressionPosFixa[position] in symbolVerify:
+			for count in range(0,2):
+				if variableList[-1] == "inteiro" or variableList[-1] == "booleano":
+					typeResult.append(variableList[-1])
+				elif variableList[-1].isalpha():
+					typeResult.append(symboltable.getType(variableList[-1]))
+				else:
+					typeResult.append("inteiro")
+				variableList.pop()
+			if typeResult[0] == "inteiro" and typeResult[1] == "inteiro":
+				if expressionPosFixa[position] in resultTypeInteger:
+					typeResult.clear()
+					variableList.append("inteiro")
+				elif expressionPosFixa[position] in resultTypeBoolean:
+					typeResult.clear()
+					variableList.append("booleano")
+				else:
+					errorExpression(token["Line"])
+			elif typeResult[0] == "booleano" and typeResult[1] == "booleano":
+				if expressionPosFixa[position] in verifyForBoolean:
+					typeResult.clear()
+					variableList.append("booleano")
+				else:
+					errorExpression(token["Line"])
+			else:
+				errorExpression(token["Line"])
+		elif expressionPosFixa[position] in especialSymbol:
+			if expressionPosFixa[position] == "nao":
+				if variableList[-1] == "booleano":
+					variableList.pop()
+					variableList.append("booleano")
+				elif variableList[-1] == "inteiro":
+					errorExpression(token["Line"])
+				elif variableList[-1].isalpha():
+					if symboltable.getType(variableList[-1]) == "booleano":
+						variableList.pop()
+						variableList.append("booleano")
+					else:
+						errorExpression(token["Line"])
+				else:
+					errorExpression(token["Line"])
+			else:
+				if variableList[-1] == "booleano":
+					errorExpression(token["Line"])
+				elif variableList[-1] == "inteiro":
+					variableList.pop()
+					variableList.append("inteiro")
+				elif variableList[-1].isalpha():
+					if symboltable.getType(variableList[-1]) == "booleano":
+						errorExpression(token["Line"])
+					else:
+						variableList.pop()
+						variableList.append("inteiro")
+				else:
+					variableList.pop()
+					variableList.append("inteiro")
+		else:
+			variableList.append(expressionPosFixa[position])
+	if variableList[0] == "inteiro":
+		errorExpression(token["Line"])
+	else:
+		print("Expression Validate\n")
 
 def error(string,line):
-    print("Found a error: Expected " + string + " in line " + str(line))
+    print("Found an error: Expected " + string + " in line " + str(line))
     exit()
+
+def errorTable(string,line):
+	print("Found an error: Duplicity " + string + " in line " + str(line))
+	exit()
+
+def errorExpression(line):
+	print("Found an error: Wrong type variable to resolve the expression in line " + str(line))
+	exit()
