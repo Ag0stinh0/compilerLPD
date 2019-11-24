@@ -13,20 +13,18 @@ def getPosFixa(expression):
 	global list
 	global symbolList
 	resultList = []
-	
+
 	if len(expression) != 1:
 		resultList = organizeList(expression)
-		
-		print("Pós-Fixa:")
-		print(resultList)
-		print("")
-		
-		return(resultList)
-	
+	else:
+		resultList.append(expression[0])
+
+	return resultList
+
 def organizeList(expression):
 	global symbolList
 	resultList = []
-	
+
 	for position in range(0,len(expression)):
 		if expression[position] in symbolVerify:
 			if len(symbolList) == 0:
@@ -42,22 +40,22 @@ def organizeList(expression):
 					fifthPriority(resultList)
 				elif expression[position] == "ou":
 					sixthPriority(resultList)
-					
+
 				if expression[position] == ")":
 					consumeParentheses(resultList)
 				else:
 					symbolList.append(expression[position])
 		else:
 			resultList.append(expression[position])
-			
+
 	if len(symbolList) != 0:
 		cleanSymbolList(resultList)
-		
+
 	return resultList
-	
+
 def consumeParentheses(resultList):
 	global symbolList
-	
+
 	aux = len(symbolList)-1
 	while symbolList[aux] != "(":
 		resultList.append(symbolList[aux])
@@ -67,7 +65,7 @@ def consumeParentheses(resultList):
 
 def cleanSymbolList(resultList):
 	global symbolList
-	
+
 	aux = len(symbolList)-1
 	while aux >= 0:
 		resultList.append(symbolList[aux])
@@ -76,7 +74,7 @@ def cleanSymbolList(resultList):
 
 def secondPriority(resultList):
 	global symbolList
-	
+
 	aux = len(symbolList)-1
 	while aux >= 0:
 		if symbolList[aux] == "(":
@@ -88,7 +86,7 @@ def secondPriority(resultList):
 
 def thirdPriority(resultList):
 	global symbolList
-	
+
 	aux = len(symbolList)-1
 	while aux >= 0:
 		if symbolList[aux] == "(":
@@ -100,7 +98,7 @@ def thirdPriority(resultList):
 
 def fourthPriority(resultList):
 	global symbolList
-	
+
 	aux = len(symbolList)-1
 	while aux >= 0:
 		if symbolList[aux] == "(":
@@ -112,7 +110,7 @@ def fourthPriority(resultList):
 
 def fifthPriority(resultList):
 	global symbolList
-	
+
 	aux = len(symbolList)-1
 	while aux >= 0:
 		if symbolList[aux] == "(":
@@ -124,7 +122,7 @@ def fifthPriority(resultList):
 
 def sixthPriority(resultList):
 	global symbolList
-	
+
 	aux = len(symbolList)-1
 	while aux >= 0:
 		if symbolList[aux] == "(":
@@ -133,6 +131,3 @@ def sixthPriority(resultList):
 			resultList.append(symbolList[aux])
 			symbolList.pop()
 		aux -= 1
-	
-	
-	

@@ -362,7 +362,7 @@ def getToken():
 				count += 1
 			resolveComments()
 			if(index >= len(characters)):
-				return "Error"
+				errorComment()
 
 		elif characters[index].isnumeric():
 			token = resolveNumber()
@@ -460,4 +460,8 @@ def error(wrongChar):
 	global count
 	
 	print("Found a error: Unexpected character " + wrongChar + " in line " + str(count + 1))	
+	exit()
+	
+def errorComment():
+	print("Found an error: Expected } to finish the comment!")
 	exit()

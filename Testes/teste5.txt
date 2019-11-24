@@ -1,3 +1,0 @@
-Este teste apenas verifica pontuacao
-{}[]().,:;
-{ver esse colchete}

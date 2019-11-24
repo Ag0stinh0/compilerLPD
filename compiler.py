@@ -9,55 +9,51 @@ import codegeneration
 import symboltable
 
 def main():
-    filePath = argsParser()
+    filePath,objPath = argsParser()
     lexical.getFile(filePath)
 
     token = lexical.getToken()
-    if token != "Error":
-        print(token)
-        if token["Symbol"] == "sprograma":
+    codegeneration.generate(None,"START",None,None)
+    if token["Symbol"] == "sprograma":
+        token = lexical.getToken()
+        if token["Symbol"] == "sidentificador":
+            symboltable.insert(token["Lexeme"],"program",0,None,None)
             token = lexical.getToken()
-            print(token)
-            if token["Symbol"] == "sidentificador":
-                symboltable.insert(token["Lexeme"],"program",0,None)
+            if token["Symbol"] == "sponto_virgula":
+                syntactic.analyzeBlock()
                 token = lexical.getToken()
-                print(token)
-                if token["Symbol"] == "sponto_virgula":
-                    syntactic.analyzeBlock()
-                    token = lexical.getToken()
-                    print(token)
-                    if token != "End":
-                        if token["Symbol"] == "sponto":
-                            token = lexical.getToken()
-                            print(token)
-                            if token == "End":
-                                print("SUCESS!")
-                            else:
-                                error("the end of file", token["Line"])
+                if token != "End":
+                    if token["Symbol"] == "sponto":
+                        token = lexical.getToken()
+                        if token == "End":
+                            codegeneration.generate(None,"DALLOC",0,syntactic.toAlloc)
+                            codegeneration.generate(None,"HLT",None,None)
                         else:
-                            error(".", token["Line"])
+                            error("the end of file", token["Line"])
                     else:
-                        print("Found an error: Expected . to finish the program!")
+                        error(".", token["Line"])
                 else:
-                    error("an ;", token["Line"])
+                    print("Found an error: Expected . to finish the program!")
             else:
-                error("an Identifier", token["Line"])
+                error("an ;", token["Line"])
         else:
-            error("programa", token["Line"])
+            error("an Identifier", token["Line"])
     else:
-        print("Found an error: Expected } to finish the comment!")
-    codegeneration.makeObject("teste")
+        error("programa", token["Line"])
+    codegeneration.makeObject(objPath)
+
 
 def argsParser():
     parser = argparse.ArgumentParser(description="Simple compiler")
     parser.add_argument('path', help = "path to the file")
+    parser.add_argument('destination', help = "name of object file")
     args = parser.parse_args()
 
-    if args.path == None:
-        print ("Usage: compiler.py -f <path_to_file>")
+    if args.path == None or args.destination == None:
+        print ("Usage: compiler.py <path_to_file> <obj_file>")
         exit()
     else:
-        return args.path
+        return args.path,args.destination
 
 def error(string,line):
     print("Found an error: Expected " + string + " in line " + str(line))

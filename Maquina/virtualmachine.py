@@ -135,12 +135,22 @@ def push(value):
 	global stack_pointer
 	stack_pointer += 1
 
+def pushAlloc(m,value):
+        stack.insert(m,value)
+        global stack_pointer
+        stack_pointer += 1
+
 
 def pop():
 	global stack_pointer
 	ret = stack.pop()
 	stack_pointer -= 1
 	return ret
+
+def popDalloc(m):
+        global stack_pointer
+        del stack[m]
+        stack_pointer -= 1
 
 
 def executeComand(line):
@@ -154,306 +164,171 @@ def executeComand(line):
 		#stack_pointer = -1
 
 	if line[0] == "HLT":
-		# print("\n"+ str(line))
-		return "End"
+                return "End"
 
 	elif line[0] == "LDC":
-		if line[1].isnumeric():
-			# print("\n"+ str(line))
-			push(int(line[1]))
-			# print (stack)
-		else:
-			return "Error"
+                push(int(line[1]))
 
 	elif line[0] == "LDV":
-		if line[1].isnumeric():
-			# print("\n"+ str(line))
-			push(stack[int(line[1])])
-			# print (stack)
-		else:
-			return "Error"
-
+                push(stack[int(line[1])])
+			
 	elif line[0] == "ADD":
-		if len(line) > 1:
-			return "Error"
-		else:
-			# print("\n"+ str(line))
-			# print(stack)
-			x = pop()
-			y = pop()
-			r = y + x
-			# print(str(r))
-			push(r)
-
+                x = pop()
+                y = pop()
+                r = y + x
+                push(r)
 
 	elif line[0] == "SUB":
-		if len(line) > 1:
-			return "Error"
-		else:
-			# print("\n"+ str(line))
-			# print(stack)
-			x = pop()
-			y = pop()
-			r = y - x
-			# print(str(r))
-			push(r)
+                x = pop()
+                y = pop()
+                r = y - x
+                push(r)
 
 	elif line[0] == "MULT":
-		if len(line) > 1:
-			return "Error"
-		else:
-			# print("\n"+ str(line))
-			# print(stack)
-			x = pop()
-			y = pop()
-			r = y * x
-			# print(str(r))
-			push(r)
+                x = pop()
+                y = pop()
+                r = y * x
+                push(r)
 
 	elif line[0] == "DIVI":
-		if len(line) > 1:
-			return "Error"
-		else:
-			# print("\n"+ str(line))
-			# print(stack)
-			x = pop()
-			y = pop()
-			r = y / x
-			#r = int(r)
-			# print(str(r))
-			push(r)
+                x = pop()
+                y = pop()
+                r = y / x
+                push(r)
 
 	elif line[0] == "INV":
-		if len(line) > 1:
-			return "Error"
-		else:
-			# print("\n"+ str(line))
-			stack[stack_pointer] *= -1
-			# print(stack)
+                stack[stack_pointer] *= -1
 
 	elif line[0] == "AND":
-		if len(line) > 1:
-			return "Error"
-		else:
-			# print("\n"+ str(line))
-			x = pop()
-			y = pop()
-			if x == 1 and y == 1:
-				push(1)
-				# print(stack)
-			else:
-				push(0)
-				# print(stack)
+                x = pop()
+                y = pop()
+                if x == 1 and y == 1:
+                        push(1)
+                else:
+                        push(0)
 
 	elif line[0] == "OR":
-		if len(line) > 1:
-			return "Error"
-		else:
-			# print("\n"+ str(line))
-			x = pop()
-			y = pop()
-			if x == 1 or y == 1:
-				push(1)
-				# print(stack)
-			else:
-				push(0)
-				# print(stack)
+                x = pop()
+                y = pop()
+                if x == 1 or y == 1:
+                        push(1)
+                else:
+                        push(0)
 
 	elif line[0] == "NEG":
-		if len(line) > 1:
-			return "Error"
-		else:
-			# print("\n"+ str(line))
-			stack[stack_pointer] = 1 - stack[stack_pointer]
-			# print(stack)
+                stack[stack_pointer] = 1 - stack[stack_pointer]
 
 	elif line[0] == "CME":
-		if len(line) > 1:
-			return "Error"
-		else:
-			# print("\n"+ str(line))
-			x = pop()
-			y = pop()
-			if y < x:
-				push(1)
-				# print(stack)
-			else:
-				push(0)
-				# print(stack)
+                x = pop()
+                y = pop()
+                if y < x:
+                        push(1)
+                else:
+                        push(0)
 
 	elif line[0] == "CMA":
-		if len(line) > 1:
-			return "Error"
-		else:
-			# print("\n"+ str(line))
-			x = pop()
-			y = pop()
-			if y > x:
-				push(1)
-				# print(stack)
-			else:
-				push(0)
-				# print(stack)
+                x = pop()
+                y = pop()
+                if y > x:
+                        push(1)
+                else:
+                        push(0)
 
 	elif line[0] == "CEQ":
-		if len(line) > 1:
-			return "Error"
-		else:
-			# print("\n"+ str(line))
-			x = pop()
-			y = pop()
-			if y == x:
-				push(1)
-				# print(stack)
-			else:
-				push(0)
-				# print(stack)
+                x = pop()
+                y = pop()
+                if y == x:
+                        push(1)
+                else:
+                        push(0)
 
 	elif line[0] == "CDIF":
-		if len(line) > 1:
-			return "Error"
-		else:
-			# print("\n"+ str(line))
-			x = pop()
-			y = pop()
-			if y != x:
-				push(1)
-				# print(stack)
-			else:
-				push(0)
-				# print(stack)
+                x = pop()
+                y = pop()
+                if y != x:
+                        push(1)
+                else:
+                        push(0)
 
 	elif line[0] == "CMEQ":
-		if len(line) > 1:
-			return "Error"
-		else:
-			# print("\n"+ str(line))
-			x = pop()
-			y = pop()
-			if y <= x:
-				push(1)
-				# print(stack)
-			else:
-				push(0)
-				# print(stack)
+                x = pop()
+                y = pop()
+                if y <= x:
+                        push(1)
+                else:
+                        push(0)
 
 	elif line[0] == "CMAQ":
-		if len(line) > 1:
-			return "Error"
-		else:
-			# print("\n"+ str(line))
-			x = pop()
-			y = pop()
-			if y >= x:
-				push(1)
-				# print(stack)
-			else:
-				push(0)
-				# print(stack)
+                x = pop()
+                y = pop()
+                if y >= x:
+                        push(1)
+                else:
+                        push(0)
 
 	elif line[0] == "STR":
-		if line[1].isnumeric():
-			# print("\n"+ str(line))
-			x = pop()
-			stack[int(line[1])] = x
-			# print (stack)
-		else:
-			return "Error"
-
+                x = pop()
+                stack[int(line[1])] = x
+			
 	elif line[0] == "JMP":
-		if line[1].isnumeric() and	int(line[1]) < len(program):
-			# print("\n"+ str(line))
-			# print (stack)
-			program_register = int(line[1]) - 2
-		elif line[1].isalnum():
-			# print("\n"+ str(line))
-			for l in program:
-				if l[0] == line[1]:
-					program_register = program.index(l)
-		else:
-			return "Error"
+                if line[1].isalnum():
+                        for l in program:
+                                if l[0] == line[1]:
+                                        program_register = program.index(l)
 
 	elif line[0] == "JMPF":
-		if line[1].isnumeric() and	int(line[1]) < len(program) and stack[stack_pointer] == 0:
-			# print("\n"+ str(line))
-			program_register = int(line[1]) - 2
-			# print (stack)
-		elif line[1].isalnum():
-			# print("\n"+ str(line))
-			# print (stack)
-			for l in program:
-				if l[0] == line[1]:
-					program_register = program.index(l)
-		else:
-			return "Error"
-
-	elif line[0] == "NULL":
-		if len(line) > 1:
-			return "Error"
-		# print("\n"+ str(line))
+                if stack[stack_pointer-1] == 0:
+                        for l in program:
+                                if l[0] == line[1]:
+                                        program_register = program.index(l)
+                pop()
 
 	elif line[0] == "CALL":
-		if line[1].isnumeric() and	int(line[1]) < len(program):
-			# print("\n"+ str(line))
-			push(program_register + 2)
-			# print (stack)
-			program_register = int(line[1]) - 2
-		else:
-			return "Error"
+		if line[1].isalnum():
+                        push(program_register + 1)
+                        for l in program:
+                                if l[0] == line[1]:
+                                        program_register = program.index(l)
 
 	elif line[0] == "RETURN":
-		if len(line) > 1:
-			return "Error"
-		else:
-			# print("\n"+ str(line))
-			# print (stack)
-			program_register = pop()
-			program_register -= 2
+                program_register = pop()
+                program_register -= 1
 
-	elif line[0] == "PRN":
-		if len(line) > 1:
-			return "Error"
-		else:
-			# print("\n"+ str(line))
-			# print (stack)
-			x = pop()
-			outputs.append(x)
-
-	elif line[0] == "RD":
-		global user_inputs
-
-		if len(line) > 1:
-			return "Error"
-		else:
-			# print("\n"+ str(line))
-			printInterface(0)
-			x = int(input())
-			user_inputs.append(x)
-			push(x)
-			# print (stack)
-
-	elif line[0] == "ALLOC":
-		if line[1].isnumeric() and	line[2].isnumeric():
-			# print("\n"+ str(line))
+	elif line[0] == "RETURNF":
+		if line[1] != None and line[2] != None:
 			n = int(line[2])
 			m = int(line[1])
 			for k in range(0,n):
-				push(0)
-			# print(stack)
-		else:
-			return "Error"
+				popDalloc(m)
+			aux = pop()
+			program_register = pop()
+			program_register -= 1
+			push(aux)
+
+	elif line[0] == "PRN":
+                x = pop()
+                outputs.append(x)
+
+	elif line[0] == "RD":
+                global user_inputs
+
+                printInterface(0)
+                x = int(input())
+                user_inputs.append(x)
+                push(x)
+
+	elif line[0] == "ALLOC":
+                n = int(line[2])
+                m = int(line[1])
+                for k in range(0,n):
+                        pushAlloc(m,0)
 
 	elif line[0] == "DALLOC":
-		if line[1].isnumeric() and	line[2].isnumeric():
-			# print("\n"+ str(line))
-			n = int(line[2])
-			m = int(line[1])
-			for k in range(n-1,-1,-1):
-				stack[m + k] = pop()
-			# print(stack)
-		else:
-			return "Error"
-
+                n = int(line[2])
+                m = int(line[1])
+                for k in range(n-1,-1,-1):
+                        popDalloc(m)
+			
 	return "OK"
 
 
